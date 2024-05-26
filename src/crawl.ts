@@ -2,7 +2,29 @@ import * as jsdom from "jsdom";
 
 const { JSDOM } = jsdom;
 
-async function crawlPage(currentURL: string, extractedURL: string) {
+async function crawlPage(
+    baseURL: string,
+    currentURL: string,
+    pages: Map<string, number>,
+): Promise<Map<string, number>> {
+    const baseURLObj = new URL(baseURL);
+    const currentURLObj = new URL(currentURL);
+
+    if (baseURLObj.hostname !== currentURLObj.hostname) {
+        return pages;
+    }
+
+    const normalizedCurrentURL = normalizeURL(currentURL);
+    const currentCount = pages.get(normalizedCurrentURL);
+
+    if (currentCount! > 0) {
+        pages.set(normalizedCurrentURL, currentCount! + 1);
+        return pages;
+    }
+
+    pages.set(normalizedCurrentURL, 1);
+    console.log("actively crawling", currentURL);
+
     try {
         const page = await fetch(currentURL);
         if (page.status > 399) {
@@ -12,16 +34,24 @@ async function crawlPage(currentURL: string, extractedURL: string) {
                 "on",
                 currentURL,
             );
-            return;
+            return pages;
         }
 
         const contentType = page.headers.get("content-type");
         if (!contentType?.includes("text/html")) {
             console.log("Content type", contentType, "on", currentURL);
         }
+        const htmlBody = await page.text();
+        const nextURLs = getURLsFromHTML(htmlBody, baseURL);
+
+        for (const url of nextURLs) {
+            pages = await crawlPage(baseURL, url, pages);
+        }
     } catch (error) {
         console.log("failed to fetch", error, "on", currentURL);
     }
+
+    return pages;
 }
 
 function getURLsFromHTML(htmlBody: string, baseURL: string): string[] {
