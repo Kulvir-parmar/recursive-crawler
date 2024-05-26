@@ -2,6 +2,28 @@ import * as jsdom from "jsdom";
 
 const { JSDOM } = jsdom;
 
+async function crawlPage(currentURL: string, extractedURL: string) {
+    try {
+        const page = await fetch(currentURL);
+        if (page.status > 399) {
+            console.log(
+                "failed to fetch with status code",
+                page.status,
+                "on",
+                currentURL,
+            );
+            return;
+        }
+
+        const contentType = page.headers.get("content-type");
+        if (!contentType?.includes("text/html")) {
+            console.log("Content type", contentType, "on", currentURL);
+        }
+    } catch (error) {
+        console.log("failed to fetch", error, "on", currentURL);
+    }
+}
+
 function getURLsFromHTML(htmlBody: string, baseURL: string): string[] {
     const urls: string[] = [];
 
@@ -38,4 +60,4 @@ function normalizeURL(urlString: string): string {
     return hostPath;
 }
 
-export { normalizeURL, getURLsFromHTML };
+export { normalizeURL, getURLsFromHTML, crawlPage };

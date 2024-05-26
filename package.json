@@ -2,6 +2,9 @@
     "name": "recursive-crawler",
     "module": "index.ts",
     "type": "module",
+    "scripts": {
+        "dev": "bun src/index.ts"
+    },
     "devDependencies": {
         "@types/bun": "latest",
         "@types/jsdom": "^21.1.6",
