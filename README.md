@@ -1,15 +1,14 @@
-# recursive-crawler
+# Recursive Crawler
 
-To install dependencies:
+A simple **web crawler** built in typescript😷. It recursively looks for all the hyperlinks with same hostname as the input base URL. Any hyperlink which does not have same hostname are not crawled. It also returns the count of the number of hints for each hyperlink.
 
-```bash
-bun install
-```
-
-To run:
+## Steps to run the crawler
 
 ```bash
-bun run index.ts
+bun run dev  <base-url>
 ```
 
-This project was created using `bun init` in bun v1.1.3. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+**example - <google.com>**
+```bash
+bun run dev  https://google.com/
+```
